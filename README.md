@@ -52,11 +52,13 @@ python3 verify_game.py 137 \
 
 #### Parameters:
 
-- `game_id` - Game ID (number)
-- `commit_hash` - Commit hash (64 hex characters)
-- `revealed_seed` - Revealed game seed (64 hex characters)
-- `created_at` - Game creation time (ISO format: `"2025-11-17T01:00:00"` or `"2025-11-17 01:00:00"`)
-- `winner_cell` - Winner cell number (1-64)
+- `game_id` - Game ID (positive integer, must be > 0)
+- `commit_hash` - Commit hash (exactly 64 hexadecimal characters: 0-9, a-f, A-F)
+- `revealed_seed` - Revealed game seed (exactly 64 hexadecimal characters: 0-9, a-f, A-F)
+- `created_at` - Game creation time (ISO 8601 format: `"2025-11-17T01:00:00"` or `"2025-11-17T01:00:00+00:00"` or standard format: `"2025-11-17 01:00:00"`)
+- `winner_cell` - Winner cell number (integer between 1 and 64)
+
+**Note:** The script automatically validates all input parameters. Invalid data will be rejected with clear error messages.
 
 #### Where to Get Data:
 
@@ -133,11 +135,39 @@ If both checks pass → **Game is fair** ✅
 - Legit Check is only available for games created after the system was implemented
 - For old games, the message "This game was created before Legit Check implementation" will be shown
 - For unfinished games, `seed` is not yet published
+- The script uses the same deterministic algorithms as the server, ensuring 100% accuracy
+- All calculations are performed locally - no data is sent to external servers
+- The script is safe to use and contains no malicious code - it only performs verification
+
+## ✅ Input Validation
+
+The script performs comprehensive validation of all input parameters:
+
+- **commit_hash** and **revealed_seed**: Must be exactly 64 hexadecimal characters (0-9, a-f, A-F)
+- **game_id**: Must be a positive integer (> 0)
+- **winner_cell**: Must be an integer between 1 and 64
+- **created_at**: Must be a valid date in ISO 8601 format or standard format
+
+If any parameter is invalid, the script will display a clear error message and exit with code 1.
+
+### Example Error Messages:
+
+```bash
+❌ Error: commit_hash must be exactly 64 hex characters, got 32 characters
+❌ Error: game_id must be a positive integer, got -1
+❌ Error: winner_cell must be between 1 and 64, got 100
+❌ Error: Failed to parse date 'invalid-date': ...
+```
 
 ## 🛠️ Requirements
 
 - Python 3.6+
-- Standard Python library (no external dependencies)
+- Standard Python library only (no external dependencies)
+  - `sys` - Command line arguments
+  - `hashlib` - SHA256 hashing
+  - `re` - Regular expressions for validation
+  - `datetime` - Date parsing
+  - `typing` - Type hints (optional, for better IDE support)
 
 ## 📄 License
 
